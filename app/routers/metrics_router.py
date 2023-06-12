@@ -42,9 +42,37 @@ async def get_total_conversation_number_for_subset(user_ids: list[int] = Query(.
     user_service = UserService(db=db)
 
     if current_user.user_role != RoleEnum.admin:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Only admins have access.')
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Only admins have an access.')
 
     is_user_exist = [await user_service.get_user_by_id(user_id=user_id) for user_id in user_ids]
 
     result = await metric_service.get_total_conversation_number_for_subset(user_ids=user_ids)
     return TotalConversationNumber(result=result)
+
+
+@router.get('/metrics/total_escalations/',
+            response_model=metrics_schemas.TotalEscalations, status_code=200)
+async def get_total_escalations(db: Database = Depends(get_db),
+                                current_user: User = Depends(get_current_user)) -> TotalEscalations:
+    metric_service = MetricService(db=db)
+
+    if current_user.user_role != RoleEnum.admin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Only admins have an access.')
+
+    result = await metric_service.get_total_escalations()
+    return TotalEscalations(result=result)
+
+
+@router.get('/metrics/satisfactions_percentage/',
+            response_model=metrics_schemas.SatisfactionResponse, status_code=200)
+async def get_satisfactions_percentage(db: Database = Depends(get_db),
+                                       current_user: User = Depends(get_current_user)) -> SatisfactionResponse:
+    metric_service = MetricService(db=db)
+
+    if current_user.user_role != RoleEnum.admin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Only admins have an access.')
+
+    result = await metric_service.get_satisfactions_percentage()
+    return SatisfactionResponse(result=result)
+
+

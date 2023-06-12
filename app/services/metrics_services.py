@@ -1,4 +1,6 @@
 from databases import Database
+
+from schemas.metrics_schemas import SatisfactionPercentage, FeedbackEnum
 from schemas.users_schemas import *
 from db import data_mock
 
@@ -32,4 +34,18 @@ class MetricService:
             if conversation.user_id in user_ids:
                 total_conversations += 1
         return total_conversations
+
+    async def get_total_escalations(self) -> list:
+        return data_mock.escalations
+
+    async def get_satisfactions_percentage(self) -> SatisfactionPercentage:
+        total_conversations = len(data_mock.conversations)
+        positive_feedback_count = sum(
+            1 for conversation in data_mock.conversations if conversation.feedback == FeedbackEnum.positive.value)
+        negative_feedback_count = sum(
+            1 for conversation in data_mock.conversations if conversation.feedback == FeedbackEnum.negative.value)
+
+        positive_feedback_percentage = (positive_feedback_count / total_conversations) * 100
+        negative_feedback_percentage = (negative_feedback_count / total_conversations) * 100
+        return SatisfactionPercentage(positive=positive_feedback_percentage, negative=negative_feedback_percentage)
 
