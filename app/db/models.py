@@ -1,5 +1,5 @@
 from strenum import StrEnum
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -33,4 +33,22 @@ class UsersTable(Base):
         }
 
 
+class KnowledgeBase(Base):
+    __tablename__ = 'knowledge_base'
+
+    id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"))
+    file_name = Column(String)
+    text = Column(String)
+    image_paths = Column(String)
+    created_at = Column(DateTime())
+
+    def dict(self):
+        return {
+            "user_id": self.user_id,
+            "file_name": self.file_name,
+            "text": self.text,
+            "image_paths": self.image_paths,
+            "created_at": self.created_at,
+        }
 

@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter
-from routers import auth_router, users_router, metrics_router
+from routers import auth_router, users_router, metrics_router, knowledge_base_router
 
 
 logger = logging.getLogger(__name__)
@@ -14,6 +14,7 @@ router = APIRouter()
 router.include_router(users_router.router, tags=['User'])
 router.include_router(auth_router.router, tags=['Auth'])
 router.include_router(metrics_router.router, tags=['Metrics'])
+router.include_router(knowledge_base_router.router, tags=['KnowledgeBase'])
 
 
 @router.get("/")
