@@ -25,24 +25,13 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="It's not your account")
         return search_user
 
-    async def get_user_by_email(self, user_email: str) -> Optional[User]:
+    async def get_user_by_email(self, user_email: str, with_secret_info: bool = False) -> Optional[User | UserBase]:
         """Getting user by email."""
         query_user = select(UsersTable).where(UsersTable.user_email == user_email)
         user_data = await self.db.fetch_one(query=query_user)
         if user_data:
-            user = User.parse_obj(user_data)
+            user = UserBase.parse_obj(user_data) if with_secret_info else User.parse_obj(user_data)
             logger.info(f"user getting by email: {user.user_email}")
-        else:
-            user = None
-        return user
-
-    async def get_full_user_by_email(self, user_email: str) -> Optional[UserBase]:
-        """Getting full user by id."""
-        query_user = select(UsersTable).where(UsersTable.user_email == user_email)
-        user_data = await self.db.fetch_one(query=query_user)
-        if user_data:
-            user = UserBase.parse_obj(user_data)
-            logger.info(f"full user getting by email: {user.user_email}")
         else:
             user = None
         return user
@@ -108,7 +97,6 @@ class UserService:
                                                  {'user_password': user_update.user_password})
             user_dict['user_hashed_password'] = get_hash_password(user_update.user_password_repeat)
         user_dict['user_updated_at'] = datetime.utcnow()
-        # user_dict['user_status'] = user_update.user_status
 
         query_user = update(UsersTable).where(UsersTable.user_id == user_id).values(**user_dict).returning(UsersTable)
         user_data = await self.db.fetch_one(query=query_user)

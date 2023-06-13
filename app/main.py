@@ -41,8 +41,4 @@ app = get_application()
 
 
 if __name__ == "__main__":
-    print(f"host: {system_config.app_host}")
-    print(f"port: {system_config.app_port}")
-
     uvicorn.run('main:app', host=system_config.app_host, port=int(system_config.app_port), reload=True)
-

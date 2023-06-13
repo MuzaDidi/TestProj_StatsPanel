@@ -14,7 +14,7 @@ router = APIRouter(prefix='/auth', tags=['Auth'])
 @router.post('/login/', response_model=users_schemas.TokenResponse, status_code=200)
 async def login(login: users_schemas.SignInRequest, db: Database = Depends(get_db)) -> TokenResponse:
     user_service = UserService(db=db)
-    user = await user_service.get_full_user_by_email(user_email=login.user_email)
+    user = await user_service.get_user_by_email(user_email=login.user_email, with_secret_info=True)
     if user is None or not validate_password(password=login.user_password, hashed_password=user.user_hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Incorrect username or password')
     token = users_schemas.Token(access_token=create_access_token({"sub": login.user_email}), token_type="Bearer")
